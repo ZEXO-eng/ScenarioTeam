@@ -2503,6 +2503,82 @@ function completeSurvey(){
 
 
 /* =========================
+   نسخ النتيجة
+   ========================= */
+
+async function copyResult(){
+
+  const output=document.getElementById('output');
+  const status=document.getElementById('status3');
+
+  if(!output || !output.value.trim()){
+
+    if(status)
+      status.textContent='⚠️ لا توجد نتيجة لنسخها.';
+
+    return;
+  }
+
+  const text=output.value;
+
+  try{
+
+    if(
+      navigator.clipboard &&
+      window.isSecureContext
+    ){
+
+      await navigator.clipboard.writeText(text);
+
+    }else{
+
+      output.removeAttribute('readonly');
+      output.focus();
+      output.select();
+      output.setSelectionRange(0,output.value.length);
+
+      const copied=document.execCommand('copy');
+
+      output.setAttribute('readonly','');
+
+      if(!copied)
+        throw new Error('Copy command failed');
+    }
+
+    if(status)
+      status.textContent='✅ تم نسخ النتيجة إلى الحافظة.';
+
+  }catch(e){
+
+    try{
+
+      output.removeAttribute('readonly');
+      output.focus();
+      output.select();
+      output.setSelectionRange(0,output.value.length);
+
+      const copied=document.execCommand('copy');
+
+      output.setAttribute('readonly','');
+
+      if(!copied)
+        throw new Error('Fallback copy failed');
+
+      if(status)
+        status.textContent='✅ تم نسخ النتيجة إلى الحافظة.';
+
+    }catch(error){
+
+      output.setAttribute('readonly','');
+
+      if(status)
+        status.textContent='⚠️ تعذر النسخ تلقائياً. اضغط داخل النتيجة ثم Ctrl+C.';
+    }
+  }
+}
+
+
+/* =========================
    تأثير النقر للأزرار
    ========================= */
 document.addEventListener('click',function(e){
